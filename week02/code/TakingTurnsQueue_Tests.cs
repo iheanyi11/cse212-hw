@@ -11,7 +11,10 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3) and
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: The condition checked if (person.Turns > 1) instead of properly handling
+    //                  all turn scenerios. Because of this, those with 1 turns are not properly processed.
+    //                  And those with negative or 0 turns are not readded to the queue at all.
+    //                  Also there is a  mistake in the PersonQueue.cs file in the Enqueue method where it uses Insert(0, person) instead of Add(person).
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
@@ -43,7 +46,7 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3)
     // After running 5 times, add George with 3 turns.  Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
-    // Defect(s) Found: 
+    // Defect(s) Found: The turn management logic was incorrect, causing the wrong sequence of people to be returned.
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -85,7 +88,10 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: People with 0 turns are not handled correctly.
+    //                  The code does not check for turns <= 0 to identify for infinite turns
+    //                  Tim with 0 turns was not being readded to the queue, and is turn count was reducing.
+    //                  
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -116,7 +122,10 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: People with negative turns are not being handled properly. 
+    //                  The code did not recognize that people with negative turns are also infinite.
+    //                  Tim that had -3 turns was not readded to the queue and his turn was also being modified.
+    //                  This violates the requirements that said, infinite turns count should remain unchanged.
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -143,7 +152,7 @@ public class TakingTurnsQueueTests
     [TestMethod]
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
-    // Defect(s) Found: 
+    // Defect(s) Found: None. This test passed, the empty queue was handling was implemented properly
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();
