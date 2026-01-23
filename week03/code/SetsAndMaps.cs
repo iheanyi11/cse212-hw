@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 public static class SetsAndMaps
@@ -22,7 +24,45 @@ public static class SetsAndMaps
     public static string[] FindPairs(string[] words)
     {
         // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        // Create a set to store the words for lookup in O(1) time.
+        var wordSet = new HashSet<string>(words);
+
+        // Keep track of words we have already paired so we don't have duplicates.
+        var processed = new HashSet<string>();
+
+        // Store our results.
+        var pairs = new List<string>();
+
+        // Check each word
+        foreach (var word in words)
+        {
+            // Skip if we've already proccessed
+            if (processed.Contains(word))
+                continue;
+
+            // Reverse the word.
+            var reversed = new string(new[] { word[1], word[0] });
+
+            // Check if:
+            // Fist, the reversed word exist in our set
+            // Second, it's not the same word ('aa', 'bb')
+            // Lastly, we haven't already processed the  reversed word.
+
+            if (wordSet.Contains(reversed) &&
+                word != reversed &&
+                !processed.Contains(reversed))
+            {
+                // Found a symmetric pair.
+                pairs.Add($"{word} & {reversed}");
+
+                // Mark both words as processed.
+                processed.Add(word);
+                processed.Add(reversed);
+            }
+        }
+
+        return pairs.ToArray();
+
     }
 
     /// <summary>
@@ -43,6 +83,21 @@ public static class SetsAndMaps
         {
             var fields = line.Split(",");
             // TODO Problem 2 - ADD YOUR CODE HERE
+
+            // Identify column 4 which contains the degree
+            var degree = fields[3];
+
+            // If we've seen the degree before, increment the count 
+            if (degrees.ContainsKey(degree))
+            {
+                degrees[degree]++;
+            }
+            // Otherwidse add it to the dictionary
+            else
+            {
+                degrees[degree] = 1;
+            }
+
         }
 
         return degrees;
@@ -67,7 +122,46 @@ public static class SetsAndMaps
     public static bool IsAnagram(string word1, string word2)
     {
         // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+
+        // Remove spoaces and ignore case 
+        word1 = word1.Replace(" ", "").ToLower();
+        word2 = word2.Replace(" ", "").ToLower();
+
+        //Check the length
+        if (word1.Length != word2.Length)
+            return false;
+
+        //Count the letters in word1
+        var letterCounts = new Dictionary<char, int>();
+
+        foreach (char letter in word1)
+        {
+            if (letterCounts.ContainsKey(letter))
+            {
+                letterCounts[letter]++;
+            }
+            else
+            {
+                letterCounts[letter] = 1;
+            }
+        }
+
+        // Subtract the letter counts usinf word2
+        foreach (char letter in word2)
+        {
+            //Letter not found, not an angram
+            if (!letterCounts.ContainsKey(letter))
+                return false;
+
+            letterCounts[letter]--;
+
+            // Too many of this letter in word2
+            if (letterCounts[letter] < 0)
+                return false;
+
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -101,6 +195,15 @@ public static class SetsAndMaps
         // on those classes so that the call to Deserialize above works properly.
         // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
         // 3. Return an array of these string descriptions.
-        return [];
+
+
+        var summaries = new List<string>();
+
+        foreach (var feature in featureCollection.features)
+        {
+            summaries.Add($"{feature.properties.place} - Mag {feature.properties.mag}");
+        }
+
+        return summaries.ToArray();
     }
 }
