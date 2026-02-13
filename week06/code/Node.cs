@@ -13,6 +13,12 @@ public class Node
     {
         // TODO Start Problem 1
 
+        // Check if cvalue already exists in the tree
+        if (value == Data)
+        {
+            return;
+        }
+
         if (value < Data)
         {
             // Insert to the left
@@ -34,12 +40,51 @@ public class Node
     public bool Contains(int value)
     {
         // TODO Start Problem 2
+        // Base case: if value is founf return true
+        if (value == Data)
+        {
+            return true;
+        }
+
+        // Search left
+        if (value < Data)
+        {
+            if (Left is null)
+                return false;
+            else
+                return Left.Contains(value);
+        }
+
+        // Search right
+        if (value > Data)
+        {
+            if (Right is null)
+                return false;
+            else
+                return Right.Contains(value);
+        }
+
         return false;
     }
 
     public int GetHeight()
     {
         // TODO Start Problem 4
-        return 0; // Replace this line with the correct return statement(s)
+        // Get left sub tree height
+        int leftHeight = 0;
+        if (Left is not null)
+        {
+            leftHeight = Left.GetHeight();
+        }
+
+        // Get right sub tree height
+        int rightHeight = 0;
+        if (Right is not null)
+        {
+            rightHeight = Right.GetHeight();
+        }
+
+        // Height = 1 + max of the two sub tree heights
+        return 1 + Math.Max(leftHeight, rightHeight);
     }
 }
